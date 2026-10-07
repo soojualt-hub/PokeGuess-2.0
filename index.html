@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PokéGuess: Who's that Pokémon?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="#play">PokéGuess</a>
+  <nav>
+    <a href="#play">Play</a>
+    <a href="#how">How to play</a>
+    <a href="#about">About</a>
+  </nav>
+</header>
+
+<main>
+  <section id="play" class="split">
+    <div class="left">
+      <h1>Who's that<br>Pokémon?</h1>
+      <div class="frame">
+        <div id="loader" class="loader">Finding a Pokémon…</div>
+        <img id="sprite" alt="Silhouette of a mystery Pokémon" class="silhouette" hidden>
+      </div>
+      <div id="result" class="result" role="status"></div>
+    </div>
+
+    <div class="right">
+      <div class="scoreboard" aria-live="polite">
+        <div><b id="score">0</b><span>Score</span></div>
+        <div><b id="streak">0</b><span>Streak</span></div>
+        <div><b id="best">0</b><span>Best</span></div>
+        <div><b><span id="wrong" class="plain">0</span>/5</b><span>Wrong</span></div>
+      </div>
+
+      <form id="guessForm" autocomplete="off">
+        <input id="guess" type="text" placeholder="Type your guess" aria-label="Your guess" disabled>
+        <button id="guessBtn" class="primary" disabled>Guess</button>
+      </form>
+
+      <div class="actions">
+        <button id="hintBtn" disabled>Show another clue</button>
+        <button id="revealBtn" disabled>Reveal Pokémon</button>
+        <button id="nextBtn" class="primary" disabled>Next Pokémon</button>
+      </div>
+
+      <ul id="clues" class="clues" aria-label="Clues"></ul>
+    </div>
+  </section>
+
+  <section class="strip">
+    <div id="how">
+      <h2>How to play</h2>
+      <ol>
+        <li>A random Pokémon appears as a silhouette with one clue.</li>
+        <li>Type your guess and press Enter. Each wrong guess unlocks a clue.</li>
+        <li>After 5 wrong guesses, Reveal Pokémon unlocks.</li>
+        <li>Fewer wrong guesses earn more points.</li>
+      </ol>
+    </div>
+    <div id="about">
+      <h2>About</h2>
+      <p>PokéGuess is a class project that tests your Pokémon knowledge. Names, images and stats come from <a href="https://pokeapi.co" target="_blank" rel="noopener">PokéAPI</a>. Pokémon is a trademark of Nintendo, Game Freak and Creatures Inc.; this is a fan project.</p>
+    </div>
+  </section>
+</main>
+<footer>Made for fans, gamers, students and casual players.</footer>
+<script src="script.js"></script>
+</body>
+</html>
