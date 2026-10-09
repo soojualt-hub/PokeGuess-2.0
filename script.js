@@ -1,19 +1,111 @@
 const API = "https://pokeapi.co/api/v2";
 const TOTAL = 1025;          // number of Pokémon species in PokéAPI
 const MAX_WRONG = 5;
+const SAVE_KEY = "pokeguessSaves";
 
 const $ = id => document.getElementById(id);
 const el = {
   sprite:$("sprite"), loader:$("loader"), result:$("result"), form:$("guessForm"),
   guess:$("guess"), guessBtn:$("guessBtn"), hint:$("hintBtn"), reveal:$("revealBtn"),
   next:$("nextBtn"), clues:$("clues"), wrong:$("wrong"),
-  score:$("score"), streak:$("streak"), best:$("best")
+  score:$("score"), streak:$("streak"), best:$("best"), playerName:$("playerName"),
+  menu:$("menu"), game:$("game"), mainPanel:$("mainPanel"), newForm:$("newForm"),
+  loadPanel:$("loadPanel"), newBtn:$("newBtn"), loadBtn:$("loadBtn"),
+  nameInput:$("nameInput"), nameError:$("nameError"), saveList:$("saveList"),
+  cancelNew:$("cancelNew"), backLoad:$("backLoad"), menuBtn:$("menuBtn")
 };
 
+/* ================= SAVE SYSTEM ================= */
+// Saves are stored in localStorage as { "lowercase name": {name, score, streak, best} }
+function getSaves() {
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; }
+  catch { return {}; }
+}
+function putSaves(saves) { localStorage.setItem(SAVE_KEY, JSON.stringify(saves)); }
+
+let player = null;           // the save currently being played
+let score = 0, streak = 0, best = 0;
+
+function saveProgress() {
+  if (!player) return;
+  const saves = getSaves();
+  saves[player.name.toLowerCase()] = { name:player.name, score, streak, best };
+  putSaves(saves);
+}
+
+/* ================= MENU ================= */
+function showPanel(which) {
+  el.mainPanel.hidden = which !== "main";
+  el.newForm.hidden = which !== "new";
+  el.loadPanel.hidden = which !== "load";
+}
+function showMenu() {
+  el.game.hidden = true; el.menu.hidden = false;
+  el.loadBtn.disabled = Object.keys(getSaves()).length === 0;
+  showPanel("main");
+}
+
+el.newBtn.addEventListener("click", () => {
+  el.nameInput.value = ""; el.nameError.textContent = "";
+  showPanel("new"); el.nameInput.focus();
+});
+el.cancelNew.addEventListener("click", () => showPanel("main"));
+el.backLoad.addEventListener("click", () => showPanel("main"));
+
+el.newForm.addEventListener("submit", e => {
+  e.preventDefault();
+  const name = el.nameInput.value.trim().replace(/\s+/g, " ");
+  if (!name) { el.nameError.textContent = "Please enter a name."; return; }
+  if (getSaves()[name.toLowerCase()]) {
+    el.nameError.textContent = `"${name}" is already used by another save. Choose a different name.`;
+    return;
+  }
+  startGame({ name, score:0, streak:0, best:0 });
+  saveProgress();            // create the save right away so the name is taken
+});
+
+el.loadBtn.addEventListener("click", () => {
+  renderSaves(); showPanel("load");
+});
+
+function renderSaves() {
+  el.saveList.innerHTML = "";
+  const saves = Object.values(getSaves());
+  saves.forEach(s => {
+    const li = document.createElement("li");
+    const load = document.createElement("button");
+    load.className = "load";
+    load.textContent = s.name;
+    const info = document.createElement("small");
+    info.textContent = `Score ${s.score} · Best ${s.best}`;
+    load.appendChild(info);
+    load.addEventListener("click", () => startGame(s));
+
+    const del = document.createElement("button");
+    del.className = "del"; del.textContent = "Delete";
+    del.setAttribute("aria-label", "Delete save " + s.name);
+    del.addEventListener("click", () => {
+      if (!confirm(`Delete the save "${s.name}"?`)) return;
+      const all = getSaves(); delete all[s.name.toLowerCase()]; putSaves(all);
+      if (Object.keys(all).length === 0) showMenu(); else renderSaves();
+    });
+    li.append(load, del);
+    el.saveList.appendChild(li);
+  });
+}
+
+el.menuBtn.addEventListener("click", () => { saveProgress(); showMenu(); });
+
+/* ================= GAME ================= */
 let game = { pokemon:null, clues:[], shown:0, wrong:0, over:false };
-let score = 0, streak = 0;
-let best = Number(localStorage.getItem("pokeguessBest") || 0);
-el.best.textContent = best;
+
+function startGame(save) {
+  player = save;
+  score = save.score; streak = save.streak; best = save.best;
+  el.playerName.textContent = save.name;
+  el.menu.hidden = true; el.game.hidden = false;
+  loadPokemon();
+}
 
 const norm = s => s.toLowerCase().replace(/é/g, "e").replace(/[^a-z0-9]/g, "");
 const pretty = s => s.split("-").map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
@@ -30,6 +122,8 @@ async function loadPokemon() {
   el.result.textContent = ""; el.result.className = "result";
   el.sprite.hidden = true; el.sprite.className = "silhouette";
   el.loader.hidden = false; el.loader.textContent = "Finding a Pokémon…";
+  el.clues.innerHTML = ""; el.wrong.textContent = 0;
+  updateScores();
   try {
     const id = Math.floor(Math.random() * TOTAL) + 1;
     const [p, s] = await Promise.all([getJSON(`${API}/pokemon/${id}`), getJSON(`${API}/pokemon-species/${id}`)]);
@@ -73,6 +167,10 @@ function renderClues() {
   });
 }
 
+function updateScores() {
+  el.score.textContent = score; el.streak.textContent = streak; el.best.textContent = best;
+}
+
 function updateUI() {
   el.wrong.textContent = game.wrong;
   const over = game.over;
@@ -80,14 +178,16 @@ function updateUI() {
   el.hint.disabled = over || game.shown >= game.clues.length;
   el.reveal.disabled = over || game.wrong < MAX_WRONG;
   el.next.disabled = !over;
-  el.score.textContent = score; el.streak.textContent = streak; el.best.textContent = best;
+  updateScores();
 }
 
 function endRound(won) {
   game.over = true;
+  if (!won) streak = 0;
   el.sprite.className = "revealed";
   el.result.className = "result " + (won ? "ok" : "bad");
   el.result.textContent = won ? `Correct! It's ${game.pokemon.display}!` : `It was ${game.pokemon.display}.`;
+  saveProgress();            // autosave after every round
   updateUI(); el.next.focus();
 }
 
@@ -95,9 +195,10 @@ el.form.addEventListener("submit", e => {
   e.preventDefault();
   if (game.over || !el.guess.value.trim()) return;
   if (norm(el.guess.value) === norm(game.pokemon.name)) {
-    score += Math.max(1, MAX_WRONG + 1 - game.wrong - (game.shown - 1 - game.wrong > 0 ? 1 : 0));
+    const hintsUsed = Math.max(0, game.shown - 1 - game.wrong);
+    score += Math.max(1, MAX_WRONG + 1 - game.wrong - (hintsUsed > 0 ? 1 : 0));
     streak++;
-    if (score > best) { best = score; localStorage.setItem("pokeguessBest", best); }
+    if (score > best) best = score;
     endRound(true);
   } else {
     game.wrong++;
@@ -106,7 +207,7 @@ el.form.addEventListener("submit", e => {
     el.result.className = "result bad"; el.result.textContent = "Wrong, try again!";
     el.sprite.classList.remove("shake"); void el.sprite.offsetWidth; el.sprite.classList.add("shake");
     el.guess.value = "";
-    renderClues(); updateUI();
+    renderClues(); updateUI(); saveProgress();
   }
 });
 
@@ -114,4 +215,4 @@ el.hint.addEventListener("click", () => { game.shown++; renderClues(); updateUI(
 el.reveal.addEventListener("click", () => endRound(false));
 el.next.addEventListener("click", loadPokemon);
 
-loadPokemon();
+showMenu();                  // first screen: How to play + New Game / Load Game

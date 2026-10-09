@@ -1,47 +1,129 @@
-:root{--navy:#14206b;--deep:#0c1547;--sky:#3b56d9;--yellow:#ffcb05;--paper:#f5f7ff;--ok:#1f9d57;--bad:#e03e43}
+:root{
+  --bg:#10142b;--ink:#f4f5ff;--muted:#9aa3d6;--line:#2b3466;--card:#1a2040;--soft:#ffd23f;
+  --accent:#ffd23f;--accent2:#7c5cff;--ok:#2ee6b6;--bad:#ff6b6b;--ease:cubic-bezier(.22,.8,.3,1)
+}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--deep);font:400 1rem/1.6 Nunito,system-ui,sans-serif}
-h1,h2,.logo{font-family:"Bricolage Grotesque",Nunito,sans-serif;line-height:1.05}
-.top{display:flex;justify-content:space-between;align-items:center;padding:14px 5vw;background:var(--deep)}
-.logo{font-weight:800;font-size:1.4rem;color:var(--yellow);text-decoration:none}
-nav a{color:var(--paper);margin-left:20px;text-decoration:none}
-nav a:hover,nav a:focus-visible{color:var(--yellow)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2{line-height:1.05;letter-spacing:-.03em;font-weight:700;margin:0}
 
-.split{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 56px)}
-.left{background:var(--navy);color:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 5vw;text-align:center;border-right:8px solid var(--yellow)}
-.left h1{font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:800;margin:0 0 24px}
-.frame{position:relative;width:min(100%,440px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,var(--sky),var(--deep) 75%);display:grid;place-items:center;border:4px solid var(--yellow)}
-.frame img{max-width:78%;max-height:78%;transition:filter .7s}
-.silhouette{filter:brightness(0)}
-.frame img.revealed{filter:none}
-.loader{font-weight:700;padding:0 24px}
-.result{min-height:2em;margin-top:16px;font:800 1.4rem "Bricolage Grotesque",sans-serif}
-.result.ok{color:#5de39a}.result.bad{color:#ff8a8e}
-
-.right{padding:32px 5vw;display:flex;flex-direction:column;gap:18px;justify-content:center}
-.scoreboard{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.scoreboard div{background:#fff;border:2px solid var(--navy);border-radius:12px;padding:8px;text-align:center}
-.scoreboard b{display:block;font:800 1.5rem "Bricolage Grotesque",sans-serif;color:var(--navy)}
-.scoreboard span{font-size:.8rem;opacity:.75}
-.scoreboard b .plain{font:inherit;opacity:1;font-size:inherit}
-form{display:flex;gap:8px}
-input{flex:1;min-width:0;padding:12px 14px;font:inherit;border-radius:10px;border:2px solid var(--navy);background:#fff;color:var(--deep)}
-button{padding:11px 16px;font:700 1rem Nunito,sans-serif;border-radius:10px;border:2px solid var(--navy);background:transparent;color:var(--navy);cursor:pointer}
-button.primary{background:var(--yellow);border-color:var(--yellow);color:var(--deep)}
-button:disabled{opacity:.4;cursor:not-allowed}
-button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
-.actions{display:flex;flex-wrap:wrap;gap:8px}
-.clues{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.clues li{background:#fff;border-top:5px solid var(--yellow);padding:10px 14px;border-radius:8px;box-shadow:0 1px 0 rgba(20,32,107,.2)}
-.clues li span{display:block;font-size:.8rem;opacity:.7}
-.shake{animation:shake .35s}
+/* ---------- fade animations ---------- */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.top,.split,.strip{animation:fadeIn .6s var(--ease) both}
+.panel,.how-card h2,.how-card li,.clues li,.result,.left h1,.tag{animation:fadeUp .55s var(--ease) both}
+.how-card li:nth-child(1){animation-delay:.08s}.how-card li:nth-child(2){animation-delay:.16s}
+.how-card li:nth-child(3){animation-delay:.24s}.how-card li:nth-child(4){animation-delay:.32s}
+.how-card li:nth-child(5){animation-delay:.4s}
+.frame{animation:fadeIn .8s var(--ease) both}
 
-.strip{display:grid;grid-template-columns:1fr 1fr;gap:5vw;padding:40px 5vw;background:var(--deep);color:var(--paper)}
-.strip h2{font-size:1.6rem;margin:0 0 8px;color:var(--yellow)}
-.strip a{color:var(--yellow)}
-footer{text-align:center;padding:18px;background:var(--deep);color:var(--paper);opacity:.85;font-size:.9rem}
+/* ---------- header ---------- */
+.top{display:flex;justify-content:space-between;align-items:center;padding:22px 6vw}
+.logo{font-weight:700;letter-spacing:-.02em;font-size:1.1rem}
+nav a{color:var(--muted);text-decoration:none;font-size:.95rem;transition:color .2s}
+nav a:hover,nav a:focus-visible{color:var(--ink)}
 
-@media (max-width:800px){.split,.strip{grid-template-columns:1fr}.left{border-right:0;border-bottom:8px solid var(--yellow)}.clues{grid-template-columns:1fr}}
+/* ---------- layout ---------- */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:6vw;align-items:center;min-height:calc(100vh - 140px);padding:0 6vw 40px}
+.left{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.left h1{font-size:clamp(2.6rem,6vw,4.6rem);margin-bottom:22px}
+.tag{margin:0 0 6px;color:var(--muted);font-size:.85rem;letter-spacing:.12em;text-transform:uppercase}
+.right{display:flex;flex-direction:column;gap:20px}
+
+/* ---------- buttons & inputs ---------- */
+button{font:500 .95rem Inter,sans-serif;padding:12px 22px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:background .2s,border-color .2s,transform .2s var(--ease),opacity .2s}
+button:hover:not(:disabled){border-color:var(--ink);transform:translateY(-1px)}
+button:active:not(:disabled){transform:none}
+button.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+button.primary:hover:not(:disabled){background:#333}
+button:disabled{opacity:.35;cursor:not-allowed}
+input{width:100%;padding:13px 18px;font:inherit;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);transition:border-color .2s,box-shadow .2s}
+input:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 4px rgba(17,17,17,.06)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+/* ---------- menu ---------- */
+.panel{width:min(100%,340px);display:flex;flex-direction:column;gap:12px}
+.panel h2{font-size:1.4rem}
+.panel label{font-size:.9rem;color:var(--muted)}
+.panel button{width:100%}
+.error{min-height:1.4em;margin:0;color:var(--bad);font-size:.9rem}
+.row{display:flex;gap:10px}.row button{flex:1}
+.saves{list-style:none;margin:0;padding:0;display:grid;gap:8px;max-height:260px;overflow:auto}
+.saves li{display:flex;gap:8px}
+.saves .load{flex:1;text-align:left;border-radius:18px}
+.saves .load small{display:block;color:var(--muted);font-weight:400}
+.saves .del{width:auto;color:var(--muted)}
+.how-card{max-width:440px}
+.how-card h2{font-size:1.6rem;margin-bottom:16px}
+.how-card ol{margin:0;padding:0;list-style:none;counter-reset:s}
+.how-card li{counter-increment:s;display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--line);color:#333}
+.how-card li::before{content:counter(s,decimal-leading-zero);color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* ---------- game ---------- */
+.frame{width:min(100%,420px);aspect-ratio:1;border-radius:50%;background:var(--soft);display:grid;place-items:center}
+.frame img{max-width:76%;max-height:76%;transition:filter .9s var(--ease),transform .9s var(--ease)}
+.silhouette{filter:brightness(0)}
+.frame img.revealed{filter:none;transform:scale(1.04)}
+.frame img.shake{animation:shake .35s}
+.loader{color:var(--muted);padding:0 28px;text-align:center;animation:fadeIn .6s both}
+.result{min-height:2em;margin-top:18px;font-size:1.2rem;font-weight:500}
+.result.ok{color:var(--ok)}.result.bad{color:var(--bad)}
+.player-bar{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.95rem}
+.player-bar #playerName{color:var(--ink);font-weight:500}
+.player-bar button{padding:8px 16px;font-size:.85rem}
+.scoreboard{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:20px;background:var(--card)}
+.scoreboard div{padding:14px 8px;text-align:center}
+.scoreboard div+div{border-left:1px solid var(--line)}
+.scoreboard b{display:block;font-size:1.5rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.scoreboard span{font-size:.75rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.scoreboard b .plain{font:inherit;color:inherit;text-transform:none;letter-spacing:inherit}
+#guessForm{display:flex;gap:10px}
+#guessForm input{flex:1}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.clues{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.clues li{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px}
+.clues li span{display:block;font-size:.75rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+/* ---------- about & footer ---------- */
+.strip{padding:48px 6vw;border-top:1px solid var(--line);max-width:760px}
+.strip h2{font-size:1.2rem;margin-bottom:8px}
+.strip p{color:var(--muted);margin:0}
+.strip a{color:var(--ink)}
+footer{padding:24px 6vw 36px;color:var(--muted);font-size:.85rem}
+
+@media (max-width:800px){
+  .split{grid-template-columns:1fr;gap:28px;min-height:0;padding-top:12px}
+  .clues{grid-template-columns:1fr}
+  .frame{margin:0 auto}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto}}
+
+/* ---------- color overrides: dark base, yellow + violet accents ---------- */
+body{background:linear-gradient(115deg,#10142b 0 52%,#171d4a 52% 100%) fixed}
+.logo{color:var(--accent)}
+.tag{color:var(--accent)}
+nav a:hover,nav a:focus-visible{color:var(--accent)}
+button:hover:not(:disabled){border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#10142b;font-weight:700}
+button.primary:hover:not(:disabled){background:#ffe073;border-color:#ffe073}
+input{background:var(--card)}
+input::placeholder{color:var(--muted)}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(255,210,63,.18)}
+button:focus-visible,a:focus-visible{outline-color:var(--accent)}
+.frame{background:radial-gradient(circle at 35% 30%,#ffe36e,var(--accent) 70%);box-shadow:0 0 0 10px rgba(255,210,63,.12),0 30px 80px rgba(124,92,255,.35)}
+.loader{color:#10142b;font-weight:500}
+.how-card li{color:var(--ink)}
+.how-card li::before{color:var(--accent);font-weight:700}
+.scoreboard{background:var(--card)}
+.scoreboard b{color:var(--accent)}
+.scoreboard div:last-child b{color:var(--accent2);filter:brightness(1.5)}
+.clues li{border-left:4px solid var(--accent2)}
+.clues li span{color:var(--accent)}
+.saves .load small{color:var(--muted)}
+.player-bar #playerName{color:var(--accent)}
+.strip{border-top:1px solid var(--line)}
+.strip h2{color:var(--accent)}
+.strip a{color:var(--accent)}
+.error{color:var(--bad)}
