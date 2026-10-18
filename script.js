@@ -1,6 +1,6 @@
 const API = "https://pokeapi.co/api/v2";
-const TOTAL = 1025;          // number of Pokémon species in PokéAPI
-const MAX_WRONG = 5;
+const TOTAL = 1025;
+const BASE_POINTS = 6;
 const SAVE_KEY = "pokeguessSaves";
 
 const $ = id => document.getElementById(id);
@@ -16,14 +16,13 @@ const el = {
 };
 
 /* ================= SAVE SYSTEM ================= */
-// Saves are stored in localStorage as { "lowercase name": {name, score, streak, best} }
 function getSaves() {
   try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; }
   catch { return {}; }
 }
 function putSaves(saves) { localStorage.setItem(SAVE_KEY, JSON.stringify(saves)); }
 
-let player = null;           // the save currently being played
+let player = null;
 let score = 0, streak = 0, best = 0;
 
 function saveProgress() {
@@ -61,7 +60,7 @@ el.newForm.addEventListener("submit", e => {
     return;
   }
   startGame({ name, score:0, streak:0, best:0 });
-  saveProgress();            // create the save right away so the name is taken
+  saveProgress();
 });
 
 el.loadBtn.addEventListener("click", () => {
@@ -97,7 +96,7 @@ function renderSaves() {
 el.menuBtn.addEventListener("click", () => { saveProgress(); showMenu(); });
 
 /* ================= GAME ================= */
-let game = { pokemon:null, clues:[], shown:0, wrong:0, over:false };
+let game = { pokemon:null, clues:[], shown:0, wrong:0, guesses:0, over:false };
 
 function startGame(save) {
   player = save;
@@ -139,7 +138,7 @@ async function loadPokemon() {
         ["Size", `${p.height / 10} m, ${p.weight / 10} kg`],
         ["Name", `Starts with "${name[0].toUpperCase()}", ${name.replace(/-/g, "").length} letters`]
       ],
-      shown:1, wrong:0, over:false
+      shown:1, wrong:0, guesses:0, over:false
     };
     el.sprite.src = game.pokemon.image;
     await new Promise(r => { el.sprite.onload = r; el.sprite.onerror = r; });
@@ -172,11 +171,11 @@ function updateScores() {
 }
 
 function updateUI() {
-  el.wrong.textContent = game.wrong;
+  el.wrong.textContent = game.guesses;
   const over = game.over;
   el.guess.disabled = el.guessBtn.disabled = over;
   el.hint.disabled = over || game.shown >= game.clues.length;
-  el.reveal.disabled = over || game.wrong < MAX_WRONG;
+  el.reveal.disabled = over;
   el.next.disabled = !over;
   updateScores();
 }
@@ -186,17 +185,21 @@ function endRound(won) {
   if (!won) streak = 0;
   el.sprite.className = "revealed";
   el.result.className = "result " + (won ? "ok" : "bad");
-  el.result.textContent = won ? `Correct! It's ${game.pokemon.display}!` : `It was ${game.pokemon.display}.`;
-  saveProgress();            // autosave after every round
+  const n = game.guesses;
+  el.result.textContent = won
+    ? `Correct! It's ${game.pokemon.display}, guessed in ${n} ${n === 1 ? "try" : "tries"}.`
+    : `It was ${game.pokemon.display}.`;
+  saveProgress();
   updateUI(); el.next.focus();
 }
 
 el.form.addEventListener("submit", e => {
   e.preventDefault();
   if (game.over || !el.guess.value.trim()) return;
+  game.guesses++;
   if (norm(el.guess.value) === norm(game.pokemon.name)) {
     const hintsUsed = Math.max(0, game.shown - 1 - game.wrong);
-    score += Math.max(1, MAX_WRONG + 1 - game.wrong - (hintsUsed > 0 ? 1 : 0));
+    score += Math.max(1, BASE_POINTS - game.guesses - (hintsUsed > 0 ? 1 : 0) + 1);
     streak++;
     if (score > best) best = score;
     endRound(true);
@@ -215,4 +218,4 @@ el.hint.addEventListener("click", () => { game.shown++; renderClues(); updateUI(
 el.reveal.addEventListener("click", () => endRound(false));
 el.next.addEventListener("click", loadPokemon);
 
-showMenu();                  // first screen: How to play + New Game / Load Game
+showMenu();
