@@ -195,7 +195,13 @@ function endRound(won) {
 
 el.form.addEventListener("submit", e => {
   e.preventDefault();
-  if (game.over || !el.guess.value.trim()) return;
+  if (game.over) return;
+  if (!el.guess.value.trim()) {
+    el.result.className = "result bad";
+    el.result.textContent = "Please type a Pokémon name before pressing Guess.";
+    el.guess.focus();
+    return;
+  }
   game.guesses++;
   if (norm(el.guess.value) === norm(game.pokemon.name)) {
     const hintsUsed = Math.max(0, game.shown - 1 - game.wrong);
