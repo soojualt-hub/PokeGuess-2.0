@@ -12,7 +12,9 @@ const el = {
   menu:$("menu"), game:$("game"), mainPanel:$("mainPanel"), newForm:$("newForm"),
   loadPanel:$("loadPanel"), newBtn:$("newBtn"), loadBtn:$("loadBtn"),
   nameInput:$("nameInput"), nameError:$("nameError"), saveList:$("saveList"),
-  cancelNew:$("cancelNew"), backLoad:$("backLoad"), menuBtn:$("menuBtn")
+  cancelNew:$("cancelNew"), backLoad:$("backLoad"), menuBtn:$("menuBtn"),
+  modal:$("confirmModal"), modalText:$("modalText"),
+  modalCancel:$("modalCancel"), modalConfirm:$("modalConfirm")
 };
 
 /* ================= SAVE SYSTEM ================= */
@@ -67,6 +69,25 @@ el.loadBtn.addEventListener("click", () => {
   renderSaves(); showPanel("load");
 });
 
+function confirmDelete(name) {
+  return new Promise(resolve => {
+    el.modalText.textContent = `The save "${name}" and its scores will be permanently removed.`;
+    el.modal.hidden = false;
+    el.modalCancel.focus();
+    const onKey = e => { if (e.key === "Escape") close(false); };
+    const close = result => {
+      el.modal.hidden = true;
+      el.modalCancel.onclick = el.modalConfirm.onclick = el.modal.onclick = null;
+      document.removeEventListener("keydown", onKey);
+      resolve(result);
+    };
+    document.addEventListener("keydown", onKey);
+    el.modalCancel.onclick = () => close(false);
+    el.modalConfirm.onclick = () => close(true);
+    el.modal.onclick = e => { if (e.target === el.modal) close(false); };
+  });
+}
+
 function renderSaves() {
   el.saveList.innerHTML = "";
   const saves = Object.values(getSaves());
@@ -83,8 +104,8 @@ function renderSaves() {
     const del = document.createElement("button");
     del.className = "del"; del.textContent = "Delete";
     del.setAttribute("aria-label", "Delete save " + s.name);
-    del.addEventListener("click", () => {
-      if (!confirm(`Delete the save "${s.name}"?`)) return;
+    del.addEventListener("click", async () => {
+      if (!(await confirmDelete(s.name))) return;
       const all = getSaves(); delete all[s.name.toLowerCase()]; putSaves(all);
       if (Object.keys(all).length === 0) showMenu(); else renderSaves();
     });

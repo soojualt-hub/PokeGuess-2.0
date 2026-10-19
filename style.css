@@ -8,7 +8,6 @@ html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 h1,h2{line-height:1.05;letter-spacing:-.03em;font-weight:700;margin:0}
 
-/* ---------- fade animations ---------- */
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
@@ -19,20 +18,17 @@ h1,h2{line-height:1.05;letter-spacing:-.03em;font-weight:700;margin:0}
 .how-card li:nth-child(5){animation-delay:.4s}
 .frame{animation:fadeIn .8s var(--ease) both}
 
-/* ---------- header ---------- */
 .top{display:flex;justify-content:space-between;align-items:center;padding:22px 6vw}
 .logo{font-weight:700;letter-spacing:-.02em;font-size:1.1rem}
 nav a{color:var(--muted);text-decoration:none;font-size:.95rem;transition:color .2s}
 nav a:hover,nav a:focus-visible{color:var(--ink)}
 
-/* ---------- layout ---------- */
 .split{display:grid;grid-template-columns:1fr 1fr;gap:6vw;align-items:center;min-height:calc(100vh - 140px);padding:0 6vw 40px}
 .left{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 .left h1{font-size:clamp(2.6rem,6vw,4.6rem);margin-bottom:22px}
 .tag{margin:0 0 6px;color:var(--muted);font-size:.85rem;letter-spacing:.12em;text-transform:uppercase}
 .right{display:flex;flex-direction:column;gap:20px}
 
-/* ---------- buttons & inputs ---------- */
 button{font:500 .95rem Inter,sans-serif;padding:12px 22px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:background .2s,border-color .2s,transform .2s var(--ease),opacity .2s}
 button:hover:not(:disabled){border-color:var(--ink);transform:translateY(-1px)}
 button:active:not(:disabled){transform:none}
@@ -43,14 +39,13 @@ input{width:100%;padding:13px 18px;font:inherit;border-radius:999px;border:1px s
 input:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 4px rgba(17,17,17,.06)}
 button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 
-/* ---------- menu ---------- */
 .panel{width:min(100%,340px);display:flex;flex-direction:column;gap:12px}
 .panel h2{font-size:1.4rem}
 .panel label{font-size:.9rem;color:var(--muted)}
 .panel button{width:100%}
 .error{min-height:1.4em;margin:0;color:var(--bad);font-size:.9rem}
 .row{display:flex;gap:10px}.row button{flex:1}
-.saves{list-style:none;margin:0;padding:0;display:grid;gap:8px;max-height:260px;overflow:auto}
+.saves{list-style:none;margin:0;padding:0 8px 18px 0;display:grid;gap:8px;max-height:280px;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--accent2) transparent;-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent)}
 .saves li{display:flex;gap:8px}
 .saves .load{flex:1;text-align:left;border-radius:18px}
 .saves .load small{display:block;color:var(--muted);font-weight:400}
@@ -61,7 +56,6 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset
 .how-card li{counter-increment:s;display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--line);color:#333}
 .how-card li::before{content:counter(s,decimal-leading-zero);color:var(--muted);font-variant-numeric:tabular-nums}
 
-/* ---------- game ---------- */
 .frame{width:min(100%,420px);aspect-ratio:1;border-radius:50%;background:var(--soft);display:grid;place-items:center}
 .frame img{max-width:76%;max-height:76%;transition:filter .9s var(--ease),transform .9s var(--ease)}
 .silhouette{filter:brightness(0)}
@@ -86,7 +80,6 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset
 .clues li{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px}
 .clues li span{display:block;font-size:.75rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 
-/* ---------- about & footer ---------- */
 .strip{padding:48px 6vw;border-top:1px solid var(--line);max-width:760px}
 .strip h2{font-size:1.2rem;margin-bottom:8px}
 .strip p{color:var(--muted);margin:0}
@@ -100,7 +93,6 @@ footer{padding:24px 6vw 36px;color:var(--muted);font-size:.85rem}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto}}
 
-/* ---------- color overrides: dark base, yellow + violet accents ---------- */
 body{background:linear-gradient(115deg,#10142b 0 52%,#171d4a 52% 100%) fixed}
 .logo{color:var(--accent)}
 .tag{color:var(--accent)}
@@ -127,3 +119,17 @@ button:focus-visible,a:focus-visible{outline-color:var(--accent)}
 .strip h2{color:var(--accent)}
 .strip a{color:var(--accent)}
 .error{color:var(--bad)}
+
+.saves::-webkit-scrollbar{width:8px}
+.saves::-webkit-scrollbar-track{background:transparent;margin:6px 0}
+.saves::-webkit-scrollbar-thumb{background:linear-gradient(var(--accent2),#a58bff);border-radius:999px;border:2px solid transparent;background-clip:padding-box;transition:background .2s}
+.saves::-webkit-scrollbar-thumb:hover{background:linear-gradient(var(--accent),#ffe073);background-clip:padding-box}
+.saves li{animation:fadeUp .4s var(--ease) both}
+.saves li:nth-child(2){animation-delay:.05s}.saves li:nth-child(3){animation-delay:.1s}.saves li:nth-child(4){animation-delay:.15s}
+.saves .del:hover:not(:disabled){border-color:var(--bad);color:var(--bad)}
+.modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:20px;background:rgba(8,10,28,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:fadeIn .25s var(--ease) both}
+.modal-card{width:min(100%,380px);background:var(--card);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:fadeUp .35s var(--ease) both}
+.modal-card h2{font-size:1.4rem;margin-bottom:8px}
+.modal-card p{margin:0 0 22px;color:var(--muted)}
+button.danger{background:var(--bad);border-color:var(--bad);color:#10142b;font-weight:700}
+button.danger:hover:not(:disabled){background:#ff8a8a;border-color:#ff8a8a}
